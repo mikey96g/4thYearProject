@@ -7,10 +7,10 @@ from tweepy import Stream
 from tweepy.streaming import StreamListener
 
 #consumer key, consumer secret, access token, access secret.
-ckey='IXO7y3NtUqgZcki3KuW1p4nS0'
-csecret='t1MTUtlD1TMemTqpgRyOpzKn3oMIVj3F4Rjoc4mHJsQgUahmtG'
-atoken='2705490329-80t7yqBWhTvOUAZy3VC4v9SvibbabU2MMsFZuHX'
-asecret='u1s6637pHzvF1aHWejgbbjvLIk8esODJVxn4TnhEKqh4k'
+ckey=''
+csecret=''
+atoken=''
+asecret=''
 
 analyzer = SentimentIntensityAnalyzer()
 vs_compound = []
