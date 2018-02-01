@@ -15,7 +15,7 @@ asecret='u1s6637pHzvF1aHWejgbbjvLIk8esODJVxn4TnhEKqh4k'
 
 analyzer = SentimentIntensityAnalyzer()
 vs_compound = []
-avg = []
+
 # Start the scheduler
 sched = BackgroundScheduler()
 
@@ -44,12 +44,22 @@ class listener(StreamListener):
 
 
 def sent_Avg():
+
     avg = sum(vs_compound)/len(vs_compound)
+    avg1 = [avg]
     vs_compound.clear()
-    print("The avegage is",avg)
+    with open('stream1.csv', 'a', newline='') as f:
+        csvWriter = csv.writer(f)
+        csvWriter.writerows(map(lambda x: [x], avg1))
+    print(avg1)
 
 auth = OAuthHandler(ckey, csecret)
 auth.set_access_token(atoken, asecret)
+
+with open('stream1.csv', 'a', newline='') as f:
+    fieldnames = ['Averages']
+    csvWriter1 = csv.DictWriter(f, fieldnames=fieldnames)
+    csvWriter1.writeheader()
 
 
 sched.add_job(sent_Avg,'interval',seconds=30 )
@@ -57,3 +67,4 @@ sched.start()
 
 twitterStream = Stream(auth, listener())
 twitterStream.filter(track=["Lou"])
+
