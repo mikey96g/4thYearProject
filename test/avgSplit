@@ -1,0 +1,12 @@
+from apscheduler.schedulers.blocking import BlockingScheduler
+
+# Start the scheduler
+sched = BlockingScheduler()
+
+
+def job_function():
+    print("Hello World")
+
+
+sched.add_job(job_function,'interval',seconds=5 )
+sched.start()
