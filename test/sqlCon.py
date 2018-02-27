@@ -19,7 +19,7 @@ asecret='u1s6637pHzvF1aHWejgbbjvLIk8esODJVxn4TnhEKqh4k'
 
 
 #Database Access
-cnxn = pyodbc.connect('Driver={ODBC Driver 13 for SQL Server};Server=tcp:projdata.database.windows.net,1433;Database=projData;Uid=mikey96g@projdata;Pwd={Kildare123!};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
+cnxn = pyodbc.connect('Driver={ODBC Driver 13 for SQL Server};Server=tcp:projdata.database.windows.net,1433;Database=projData;Uid=mikey96g@projdata;Pwd={};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
 cursor = cnxn.cursor()
 
 
