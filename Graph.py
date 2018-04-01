@@ -1,3 +1,4 @@
+import flask
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -114,5 +115,7 @@ external_css = ["https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/
 for css in external_css:
     app.css.append_css({"external_url": css})
 
-if __name__ == '__main__':
-    app.run_server(debug=True)
+# if __name__ == '__main__':
+#      app.run_server(debug=True)
+server = flask.Flask(__name__)
+app = dash.Dash(__name__, server=server)
