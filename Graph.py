@@ -10,32 +10,14 @@ import plotly.graph_objs as go
 from collections import deque
 
 
-#Database Access
-# cnxn = pyodbc.connect('Driver={ODBC Driver 13 for SQL Server}'
-#                               ';Server=tcp:year4bitcoin.database.windows.net,1433;'
-#                               'Database=year4Proj;Uid=mikey96g@year4bitcoin;Pwd={Tallaght123!};'
-#                               'Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
-
-
 X = deque(maxlen=20)
 X.append(1)
 Y = deque(maxlen=20)
 Y.append(1)
 
-sentiment_colors = {-1:"#EE6055",
-                    -0.5:"#FDE74C",
-                     0:"#FFE6AC",
-                     0.5:"#D0F2DF",
-                     1:"#9CEC5B",}
 
 
-# app_colors = {
-#     'background': '#0C0F0A',
-#     'text': '#FFFFFF',
-#     'sentiment-plot':'#41EAD4',
-#     'volume-bar':'#FBFC74',
-#     'someothercolor':'#FF206E',
-# }
+
 
 app = dash.Dash(__name__)
 app.layout = html.Div(
@@ -56,8 +38,7 @@ html.Button('Predict Next Result', id='my-button'),
 )
 
 
-#@app.callback(Output(...), [Input('my-button', 'n_clicks')])
-#def on_click(number_of_times_button_has_clicked):
+
 @app.callback(Output('live-graph', 'figure'),
               events=[Event('graph-update', 'interval')])
 def update_graph_scatter():
@@ -104,8 +85,7 @@ def update_graph_scatter():
             high=list(high_data),
             low=list(low_data),
             close=list(close_data)
-            #name='Scatter',
-            #mode='lines+markers'
+          
             )
 
     return {'data': [data],'layout' : go.Layout(xaxis=dict(range=[min(X),max(X)]),
