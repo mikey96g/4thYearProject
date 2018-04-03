@@ -99,3 +99,5 @@ for css in external_css:
 #      app.run_server(debug=True)
 server = flask.Flask(__name__)
 app = dash.Dash(__name__, server=https://bitcoinpredict.azurewebsites.net)
+if __name__ == '__main__':
+app.run()
