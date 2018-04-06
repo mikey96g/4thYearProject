@@ -42,8 +42,8 @@ def return_prediction():
     sq = sq.values
     sq[0]
 
-
-app = dash.Dash(__name__)
+server = flask.Flask(__name__)
+app = dash.Dash(__name__, server=server)
 app.layout = html.Div(
     [
 
@@ -124,7 +124,9 @@ for css in external_css:
     app.css.append_css({"external_url": css})
 
 
-server = app.server # the Flask app
+# server = app.server # the Flask app
 
+# if __name__ == '__main__':
+#     app.run_server(debug=True)
 if __name__ == '__main__':
-    app.run_server(debug=True)
+  app.run()
