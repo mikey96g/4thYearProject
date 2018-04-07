@@ -44,25 +44,35 @@ def return_prediction():
 
 server = flask.Flask(__name__)
 app = dash.Dash(__name__, server=server)
-app.layout = html.Div(
-    [
+all_options = {
+    'America': ['New York City', 'San Francisco', 'Cincinnati'],
+    'Canada': [u'Montréal', 'Toronto', 'Ottawa']
+}
+app = dash.Dash()
+
+app.layout = html.Div([
 
 
-     html.Div(className='row', children=[html.Div(dcc.Graph(id='live-graph', animate=False), className='col s12 m6 l6'),
-                                         html.Div(dcc.Graph(id='historical-graph', animate=False),
-                                                  className='col s12 m6 l6')]),
-     html.Hr(),
-     html.Div([html.Button('Click Me', id='button'),
-     html.H3(id='button-clicks'),]),
 
+    html.Div(className='container-fluid', children=[html.H2('Live Bitcoin Predictions', style={'color': "#000000"})]),
+    html.Hr(),
+    html.Div(className='row', children=[html.Div(dcc.Graph(id='live-graph', animate=False),
+                                        className='col s12 m8 l6'),
+                                        html.Div(dcc.RadioItems(
+                                        id='countries-dropdown',
+                                        options=[{'label': k, 'value': k} for k in all_options.keys()],
+                                        value='America'
+    ),
+                                        className='col s12 m4 ')]),
+    html.Div(className='row',children=[html.Div(dcc.Graph(id='historical-graph', animate=False),
+                                                 className='col s12 m8 l6'),
+                                       html.Div(dcc.Graph(id='historical-graph', animate=False),
+                                                 className='col s12 m8 l6')]),
+    html.Hr(),
+    html.Div([html.Button('Click Me', id='button'),
+              html.H3(id='button-clicks'), ]),
 
-        dcc.Interval(
-            id='graph-update',
-            interval=60000
-        ),
-    ]
-)
-
+], className='container')
 
 @app.callback(Output('live-graph', 'figure'),
               events=[Event('graph-update', 'interval')])
