@@ -14,6 +14,9 @@ cnxn = pyodbc.connect('Driver={ODBC Driver 13 for SQL Server}'
                           ';Server=tcp:year4bitcoin.database.windows.net,1433;'
                           'Database=year4Proj;Uid=mikey96g@year4bitcoin;Pwd={Tallaght123!};'
                           'Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
+server = flask.Flask(__name__)
+app = dash.Dash(__name__, server=server)
+
 cursor = cnxn.cursor()
 # Start the scheduler
 
@@ -42,12 +45,8 @@ def return_prediction():
     sq = sq.values
     sq[0]
 
-server = flask.Flask(__name__)
-app = dash.Dash(__name__, server=server)
-all_options = {
-    'America': ['New York City', 'San Francisco', 'Cincinnati'],
-    'Canada': [u'Montréal', 'Toronto', 'Ottawa']
-}
+
+
 app = dash.Dash()
 
 app.layout = html.Div([
@@ -139,4 +138,4 @@ for css in external_css:
 # if __name__ == '__main__':
 #     app.run_server(debug=True)
 if __name__ == '__main__':
-  app.run()
+    app.run(host='0.0.0.0',port=80)
