@@ -10,6 +10,8 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
+import datetime
+
 # fix random seed for reproducibility
 np.random.seed(7)
 
@@ -25,55 +27,60 @@ def create_dataset(dataset, look_back=1):
 #Database Access
 cnxn = pyodbc.connect('Driver={ODBC Driver 13 for SQL Server}'
                       ';Server=tcp:year4bitcoin.database.windows.net,1433;'
-                      'Database=year4Proj;Uid=mikey96g@year4bitcoin;Pwd={Tallaght123!};'
+                      'Database=year4Proj;Uid=mikey96g@year4bitcoin;Pwd={};'
                       'Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
+cursor = cnxn.cursor()
 
 
+print(datetime.datetime.now().time())
+look_back = 1
 					  
-def load_data():
-	sql = "Select * from dbo.BitcoinVal"
-	df = pd.read_sql(sql,cnxn)
 
-	df_stock = df.copy()
-	df_stock.drop(['dboTime'],1,inplace=True)
-	df_stock.drop(['timeDate'],1,inplace=True)
-	df_stock.drop(['dateTimeS'],1,inplace=True)
-	df_stock.drop(['dateB'],1,inplace=True)
-	df_stock.drop(['bandUpper'],1,inplace=True)
-	df_stock.drop(['bandLower'],1,inplace=True)
+sql = "Select * from dbo.BitcoinVal"
+df = pd.read_sql(sql,cnxn)
+	
+df_stock = df.copy()
+df_stock.drop(['dboTime'],1,inplace=True)
+df_stock.drop(['timeDate'],1,inplace=True)
+df_stock.drop(['dateTimeS'],1,inplace=True)
+df_stock.drop(['dateB'],1,inplace=True)
+df_stock.drop(['bandUpper'],1,inplace=True)
+df_stock.drop(['bandLower'],1,inplace=True)
 
-	# normalize the dataset
-	scaler = MinMaxScaler(feature_range=(0, 1))
-	dataset = scaler.fit_transform(df_stock)
-	train_size = int(len(dataset) * 0.8)
-	test_size = len(dataset) - train_size
-	train, test = dataset[0:train_size,:], dataset[train_size:len(dataset),:]
-	print(len(train), len(test))
+# normalize the dataset
+scaler = MinMaxScaler(feature_range=(0, 1))
+dataset = scaler.fit_transform(df_stock)
+train_size = int(len(dataset) * 0.8)
+test_size = len(dataset) - train_size
+train, test = dataset[0:train_size,:], dataset[train_size:len(dataset),:]
+print(len(train), len(test))
 
-	# reshape into X=t and Y=t+1
-	look_back = 1
-	trainX, trainY = create_dataset(train, look_back)
-	testX, testY = create_dataset(test, look_back)
+# reshape into X=t and Y=t+1
+look_back = 1
+trainX, trainY = create_dataset(train, look_back)
+testX, testY = create_dataset(test, look_back)
 	
 	# reshape input to be [samples, time steps, features]
-	trainX = np.reshape(trainX, (trainX.shape[0], look_back, 6))
-	testX = np.reshape(testX, (testX.shape[0], look_back, 6))
+trainX = np.reshape(trainX, (trainX.shape[0], look_back, 6))
+testX = np.reshape(testX, (testX.shape[0], look_back, 6))
 	
-	return trainX ,trainY,testX, testY
+#	return trainX ,trainY,testX, testY
 
 
-def create Model()	
+#def create model():	
 	# create and fit the LSTM network
-	model = Sequential()
-	model.add(LSTM(4, input_shape=(look_back,6)))
-	model.add(Dense(1))
-	model.compile(loss='mean_squared_error', optimizer='adam')
-	return model
+model = Sequential()
+model.add(LSTM(4, input_shape=(look_back,6)))
+model.add(Dense(1))
+model.compile(loss='mean_squared_error', optimizer='adam')
+#	return model
+
+#trainX ,trainY,testX, testY= load_data()	
 	
 history= model.fit(trainX, trainY,validation_split=0.33, nb_epoch=100, batch_size=10)
 
 
-trainX ,trainY,testX, testY= load_data()
+
 
 #make predictions
 trainPredict = model.predict(trainX)
@@ -104,27 +111,50 @@ testY_extended[:,5]=testY
 testY=scaler.inverse_transform(testY_extended)[:,1]
 
 
+multiN = testY[0]
+sentN = 5
+date = datetime.datetime.now().date()
+time = datetime.datetime.now().time()
+ds =timeDate = datetime.datetime.now()
+
+cursor.execute("INSERT INTO dbo.results "
+                   "(lstmSent,lstmMulti,rTime,rDate,timeDate)"
+                   " values(?,?,?,?,?)", sentN,multiN,time, date,ds)
+cnxn.commit() 
+
+# shift train predictions for plotting
 trainPredictPlot = np.empty_like(dataset)
 trainPredictPlot[:, :] = np.nan
-trainPredictPlot[look_back:len(trainPredict)+look_back, 1] = trainPredict
-
-print(testY[0])
-
-# calculate root mean squared error
-#trainScore = math.sqrt(mean_squared_error(trainY, trainPredict))
-#print('Train Score: %.2f RMSE' % (trainScore))
-#testScore = math.sqrt(mean_squared_error(testY, testPredict))
-#print('Test Score: %.2f RMSE' % (testScore))
+trainPredictPlot[look_back:len(trainPredict)+look_back, 5] = trainPredict
 
 
-# Plot training
-#plt.plot(history.history['loss'])
-#plt.plot(history.history['val_loss'])
-#plt.title('model loss')
-#plt.ylabel('lost')
-#plt.xlabel('time')
-#plt.legend(['training', 'validation'], loc='upper right')
-#plt.show()
+# shift test predictions for plotting
+testPredictPlot = np.empty_like(dataset)
+testPredictPlot[:, :] = np.nan
+testPredictPlot[len(trainPredict)+(look_back*2)+1:len(dataset)-1, 5] = testPredict
+
+print(testPredictPlot)
+#plot
+original,=plt.plot(scaler.inverse_transform(dataset)[:,1])  
+training_pred,=plt.plot(trainPredictPlot[:,1],linestyle='--')  
+test_pred,=plt.plot(testPredictPlot[:,1],linestyle='--')
+plt.title('Bitcoin Price')
+plt.ylabel('price')
+plt.xlabel('intervals')
+plt.legend([original,training_pred,test_pred],['original','training_pred','test'], loc='upper right')
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
