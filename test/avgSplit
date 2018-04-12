@@ -1,0 +1,29 @@
+import pyodbc
+import json
+import datetime
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from tweepy import OAuthHandler
+from tweepy import Stream
+from tweepy.streaming import StreamListener
+import requests
+import numpy as np
+import statistics as stats
+
+req = requests.get('https://min-api.cryptocompare.com/data/histominute?fsym=BTC&tsym=USD&limit=0&aggregate=1&e=CCCAGG')
+close = req.json()['Data'][0]['close']
+holdVal = []
+holdVal.insert(0, close)
+if len(holdVal) == 6:
+    holdVal.pop(5)
+
+if len(holdVal) >= 2:
+    sma = sum(holdVal) / len(holdVal)
+    deviation = stats.stdev(holdVal) * 2
+    upper = sma + deviation
+    lower = sma - deviation
+print('lower', lower)
+print('deviation', deviation)
+print('sma', sma)
+print('upper', upper)

@@ -81,13 +81,7 @@ def btc_call():
     close = req.json()['Data'][0]['close']
     holdVal = []
     holdVal.insert(0, close)
-    if len(holdVal) == 6:
-        holdVal.pop(5)
-    if len(holdVal) >= 2:
-        sma = sum(holdVal) / len(holdVal)
-        deviation = stats.stdev(holdVal) * 2
-        upper = sma + deviation
-        lower = sma - deviation
+    upper,lower = bollingerBand(close)
     timeDate = datetime.datetime.now()
     date = datetime.datetime.now().date()
     time = datetime.datetime.now().time()
@@ -98,8 +92,20 @@ def btc_call():
     cnxn.commit()
 
 
-
-
+def bollingerBand(close):
+    holdVal = []
+    holdVal.insert(0, close)
+    if len(holdVal) == 6:
+        holdVal.pop(5)
+    if len(holdVal) >= 2:
+        sma = sum(holdVal) / len(holdVal)
+        deviation = stats.stdev(holdVal) * 2
+        upper = sma + deviation
+        lower = sma - deviation
+    else:
+        upper = 0
+        lower = 0
+    return upper,lower
 
 auth = OAuthHandler(ckey, csecret)
 auth.set_access_token(atoken, asecret)
@@ -107,7 +113,7 @@ auth.set_access_token(atoken, asecret)
 
 sched.add_job(sent_Avg, 'interval', seconds=60)
 sched.add_job(btc_call, 'interval', seconds=60)
-# sched.add_job(bollinger_band, 'interval', seconds=60)
+
 
 
 sched.start()

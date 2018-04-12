@@ -14,9 +14,6 @@ cnxn = pyodbc.connect('Driver={ODBC Driver 13 for SQL Server}'
                           ';Server=tcp:year4bitcoin.database.windows.net,1433;'
                           'Database=year4Proj;Uid=mikey96g@year4bitcoin;Pwd={Tallaght123!};'
                           'Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
-server = flask.Flask(__name__)
-app = dash.Dash(__name__, server=server)
-
 cursor = cnxn.cursor()
 # Start the scheduler
 
@@ -45,33 +42,27 @@ def return_prediction():
     sq = sq.values
     sq[0]
 
+server = flask.Flask(__name__)
+app = dash.Dash(__name__, server=server)
+app.layout = html.Div(
+    [
 
 
-app = dash.Dash()
+     html.Div(className='row', children=[html.Div(dcc.Graph(id='live-graph', animate=False), className='col s12 m6 l6'),
+                                         html.Div(dcc.Graph(id='historical-graph', animate=False),
+                                                  className='col s12 m6 l6')]),
+     html.Hr(),
+     html.Div([html.Button('Click Me', id='button'),
+     html.H3(id='button-clicks'),]),
 
-app.layout = html.Div([
 
+        dcc.Interval(
+            id='graph-update',
+            interval=60000
+        ),
+    ]
+)
 
-
-    html.Div(className='container-fluid', children=[html.H2('Live Bitcoin Predictions', style={'color': "#000000"})]),
-    html.Hr(),
-    html.Div(className='row', children=[html.Div(dcc.Graph(id='live-graph', animate=False),
-                                        className='col s12 m8 l6'),
-                                        html.Div(dcc.RadioItems(
-                                        id='countries-dropdown',
-                                        options=[{'label': k, 'value': k} for k in all_options.keys()],
-                                        value='America'
-    ),
-                                        className='col s12 m4 ')]),
-    html.Div(className='row',children=[html.Div(dcc.Graph(id='historical-graph', animate=False),
-                                                 className='col s12 m8 l6'),
-                                       html.Div(dcc.Graph(id='historical-graph', animate=False),
-                                                 className='col s12 m8 l6')]),
-    html.Hr(),
-    html.Div([html.Button('Click Me', id='button'),
-              html.H3(id='button-clicks'), ]),
-
-], className='container')
 
 @app.callback(Output('live-graph', 'figure'),
               events=[Event('graph-update', 'interval')])
@@ -138,4 +129,4 @@ for css in external_css:
 # if __name__ == '__main__':
 #     app.run_server(debug=True)
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=80)
+  app.run()
