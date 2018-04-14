@@ -32,6 +32,7 @@ cursor = cnxn.cursor()
 analyzer = SentimentIntensityAnalyzer()
 #List for storing values
 vs_compound = []
+holdVal = []
 
 # Start the scheduler
 sched = BackgroundScheduler()
@@ -68,7 +69,7 @@ def sent_Avg():
     cnxn.commit()
 
 
-    print(avg)
+
 
 
 def btc_call():
@@ -79,24 +80,11 @@ def btc_call():
     bitVolume = req.json()['Data'][0]['volumefrom']
     dollarVol = req.json()['Data'][0]['volumeto']
     close = req.json()['Data'][0]['close']
-    holdVal = []
-    holdVal.insert(0, close)
-    upper,lower = bollingerBand(close)
-    timeDate = datetime.datetime.now()
-    date = datetime.datetime.now().date()
-    time = datetime.datetime.now().time()
-    cursor.execute("INSERT INTO dbo.BitcoinVal "
-                   "(CLOSEPRICE, openingPrice,highPrice,lowPrice,bandUpper, bandLower ,volCoin, volEuro, dboTime,dateB,timeDate )"
-                   " values(?,?,?,?,?,?,?,?,?,?,?)", close, open, high, low, upper,lower, bitVolume, dollarVol,
-                   time, date, timeDate)
-    cnxn.commit()
 
-
-def bollingerBand(close):
-    holdVal = []
     holdVal.insert(0, close)
     if len(holdVal) == 6:
         holdVal.pop(5)
+    print(holdVal)
     if len(holdVal) >= 2:
         sma = sum(holdVal) / len(holdVal)
         deviation = stats.stdev(holdVal) * 2
@@ -105,14 +93,33 @@ def bollingerBand(close):
     else:
         upper = 0
         lower = 0
-    return upper,lower
+    timeDate = datetime.datetime.now()
+    date = datetime.datetime.now().date()
+    time = datetime.datetime.now().time()
+    print('upper',upper)
+    print('Lower',lower)
+
+    cursor.execute("INSERT INTO dbo.BitcoinVal "
+                   "(CLOSEPRICE, openingPrice,highPrice,lowPrice,bandUpper, bandLower ,volCoin, volEuro, dboTime,dateB,timeDate )"
+                   " values(?,?,?,?,?,?,?,?,?,?,?)", close, open, high, low, upper,lower, bitVolume, dollarVol,
+                   time, date, timeDate)
+    cnxn.commit()
+
+
+
+
+
+
+
+
+
 
 auth = OAuthHandler(ckey, csecret)
 auth.set_access_token(atoken, asecret)
 
 
-sched.add_job(sent_Avg, 'interval', seconds=60)
-sched.add_job(btc_call, 'interval', seconds=60)
+sched.add_job(sent_Avg, 'interval', seconds=300)
+sched.add_job(btc_call, 'interval', seconds=300)
 
 
 
