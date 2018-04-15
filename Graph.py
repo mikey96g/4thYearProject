@@ -35,6 +35,12 @@ def return_prediction():
     sq = sq.values
     return sq[0]
 
+def return_prediction2():
+    sql = "Select TOP 1 lstmMulti from dbo.results Order BY  rDate  ,rTime   DESC "
+    sq = pd.read_sql(sql, cnxn)
+    sq = sq.values
+    return sq[0]
+
 
 
 app = dash.Dash(__name__)
@@ -63,7 +69,7 @@ app.layout = html.Div(
 
         html.Div(children=
         [
-            html.A(html.Button('View Sentiment Process', id='button2'), href='https://drive.google.com/open?id=1NLDFlkxQ7HkEVihmJdX7xk62sgqDHyc9'),
+            html.A(html.Button('View Sentiment Process', id='button2'), href='https://drive.google.com/open?id=1uD-J-micQiuupcPchWCiOOdt09AD0-sk',target="_blank"),
         ]),
     ]),
 
@@ -72,7 +78,7 @@ app.layout = html.Div(
     html.Hr(),
 
 
-    html.A(html.Button('View Sentiment Process',id='button2'),href='https://drive.google.com/open?id=1NLDFlkxQ7HkEVihmJdX7xk62sgqDHyc9'),
+
 
 
         dcc.Interval(
@@ -195,15 +201,15 @@ def candle_stick():
     Output('button-clicks', 'children'),
     [Input('button', 'n_clicks')])
 def LstmSent(n_clicks):
-    #return 'The predicted value is {} '.format(return_prediction())
-    return 'The predicted value is {} '.format(6855)
+    return 'The predicted value is {} '.format(return_prediction2())
+
 
 @app.callback(
     Output('multi', 'children'),
     [Input('button2', 'n_clicks')])
 def LstmSent(n_clicks2):
-    #return 'The predicted value is {} '.format(return_prediction())
-    return 'The predicted value is {} '.format(200)
+    return 'The predicted value is {} '.format(return_prediction())
+
 
 
 
