@@ -1,0 +1,39 @@
+Drop Table dbo.BitcoinVal;
+Drop Table dbo.sentimentValues;
+Drop Table dbo.results;
+
+
+Create Table dbo.SentimentValues
+(   
+    sentVal float NOT NULL,
+    sentTotal integer NOT NULL,
+    dateS date NOT NULL,
+    timeS time NOT NULL,
+    dateTimeS varchar(255) NOT NULL,
+    PRIMARY KEY (dateTimeS) 
+);
+Create Table dbo.BitcoinVal
+(   
+	openingPrice float NOT NULL,	
+	closePrice float NOT NULL,
+	highPrice float NOT NULL,
+	lowPrice float NOT NULL,
+	bandUpper float NOT NULL,
+	bandLower float NOT NULL,
+	volCoin float NOT NULL,
+	volEuro float NOT NULL,
+    	dboTime time NOT NULL,
+	dateB date NOT NULL,
+   	timeDate varchar(255) NOT NULL,    
+    Primary Key (timeDate),
+   	dateTimeS varchar(255) FOREIGN KEY REFERENCES dbo.SentimentValues(dateTimeS) 
+);
+
+
+create table dbo.results(
+lstmSent  float NOT NULL,
+lstmMulti float NOT NULL,
+rTime time NOT NULL,
+rDate date NOT NULL,
+timeDate varchar(255) NOT NULL,
+)
